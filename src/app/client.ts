@@ -8,7 +8,7 @@ export class Client {
     public phone_code: string,
     public phone: string,
     public gender: number,
-    public birthday?: Date,
+    public birthday?: string,
     public email?: string,
     public pet?: string,
     public send_promo?: boolean
