@@ -14,8 +14,8 @@ export class RegFormComponent implements OnInit {
 
   genders = ['-', 'Мужской', 'Женский'];
   states: ClientState[];
-  //statesMap: { [id: number]: ClientState; } = {};
-  statesMap = new Map<number,ClientState>();
+  // statesMap: { [id: number]: ClientState; } = {};
+  statesMap = new Map<number, ClientState>();
 
   stateMessage = '';
 
@@ -31,20 +31,20 @@ export class RegFormComponent implements OnInit {
     this.getStates();
   }
 
-  getStates(){
+  getStates() {
     this.clientService.getStates()
       .subscribe(states => this.setStates(states) );
   }
 
-  setStates(val: ClientState[]){
+  setStates(val: ClientState[]) {
     this.states = val;
-    //this.stateMessage = this.states[0].web_comment;
+    // this.stateMessage = this.states[0].web_comment;
 
-    for(let st of this.states){
-      //this.statesMap[st.id] = st;
+    for (const st of this.states) {
+      // this.statesMap[st.id] = st;
       this.statesMap.set(st.id, st);
     }
-    this.stateMessage= this.statesMap.get(-1000).web_comment;
+    this.stateMessage = this.statesMap.get(-1000).web_comment;
   }
 
 

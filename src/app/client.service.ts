@@ -15,10 +15,11 @@ export class ClientService {
     private http: HttpClient
   ) { }
 
-  private statesUrl = 'api/states';  // URL to web api
+  private rootUrl = 'http://localhost:8080/';  // URL to web api
+  private statesUrl = 'states/';  // URL to web api
 
   getStates(): Observable<ClientState[]> {
-    return this.http.get<ClientState[]>(this.statesUrl)
+    return this.http.get<ClientState[]>(this.rootUrl + this.statesUrl)
       .pipe(
         catchError(this.handleError('getStates', []))
       );
