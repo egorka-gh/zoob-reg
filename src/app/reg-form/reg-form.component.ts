@@ -5,6 +5,16 @@ import {ClientState} from '../client.state';
 import {ClientService} from '../client.service';
 import { ValidateResult } from '../validate.result';
 
+enum ViewStates {
+  Init = 0,
+  CardInput = 1,
+  WrongCard = 2,
+  CardApproved = 3,
+  Complite = 4,
+  CardError = 5,
+  ServiseError = 6
+}
+
 @Component({
   selector: 'app-reg-form',
   templateUrl: './reg-form.component.html',
@@ -18,18 +28,18 @@ export class RegFormComponent implements OnInit {
   // statesMap: { [id: number]: ClientState; } = {};
   statesMap = new Map<number, ClientState>();
 
-  errMessage = '';
+  ViewStates: typeof ViewStates = ViewStates;
+  viewState: ViewStates = ViewStates.Init;
+
   stateMessage = '';
 
   model = new Client('', '', '', '', '', '', 0);
-
-  cardApproved = false;
-  hasErr = false;
 
   constructor(private clientService: ClientService) { }
 
 
   ngOnInit() {
+    this.viewState = ViewStates.Init;
     this.clientService.ping()
       .subscribe(val => this.onPing(val) );
   }
@@ -37,13 +47,12 @@ export class RegFormComponent implements OnInit {
   onPing(res: ValidateResult) {
     if (res.err === -1) {
       // ping fault
-      this.errMessage = res.message;
-      this.hasErr = true;
-      this.cardApproved = false;
+      this.viewState = ViewStates.ServiseError;
+      this.stateMessage = res.message;
       return;
     }
-    this.errMessage = '';
-    this.hasErr = false;
+    this.viewState = ViewStates.CardInput;
+    this.stateMessage = '';
     this.getStates();
   }
 
@@ -70,26 +79,22 @@ export class RegFormComponent implements OnInit {
   }
   onValidateCard(res: ValidateResult) {
     if (res.err === 0) {
-        this.cardApproved = true;
-        this.hasErr = false;
+        this.viewState = ViewStates.CardApproved;
     } else {
-        if (res.err === -1) {
+      this.stateMessage = this.statesMap.get(res.err).web_comment;
+      if (res.err === -1) {
           // fatal service error
-          this.hasErr = true;
-          this.errMessage = this.statesMap.get(res.err).web_comment;
-          this.stateMessage = '';
+          this.viewState = ViewStates.ServiseError;
+        } else if ( res.err === -10 ) {
+          this.viewState = ViewStates.WrongCard;
         } else {
-          this.cardApproved = false;
-          this.hasErr = false;
-          this.errMessage = '';
-          this.stateMessage = this.statesMap.get(res.err).web_comment;
-        }
-    }
+          this.viewState = ViewStates.CardError;
+          this.stateMessage = this.statesMap.get(res.state).web_comment;
+      }
+  }
   }
 
-  reset() {
-    this.cardApproved = false;
-  }
+
 
   isBlank(str: string): boolean {
     if (str == null) { return true; }
