@@ -13,6 +13,7 @@
           <button class="btn btn-primary" (click)="validateCard()">Проверить</button>
         </div>
       </div>
+      <div *ngIf="sessionState"><img id=image src="{{clientService.rootUrl}}captcha/{{sessionState.captcha}}.png" alt="Captcha image"></div>
       <div *ngIf="viewState == ViewStates.CardInput" >{{stateMessage}}</div>
       <h4 *ngIf="(viewState == ViewStates.WrongCard || viewState > ViewStates.Complite)" 
         class="alert alert-danger col-xs-7" [innerHTML]="stateMessage">

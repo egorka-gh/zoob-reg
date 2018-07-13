@@ -31,11 +31,13 @@ export class RegFormComponent implements OnInit {
   ViewStates: typeof ViewStates = ViewStates;
   viewState: ViewStates = ViewStates.Init;
 
+  sessionState: ValidateResult;
+
   stateMessage = '';
 
   model = new Client('', '', '', '', '', '', 0);
 
-  constructor(private clientService: ClientService) { }
+  constructor(public clientService: ClientService) { }
 
 
   ngOnInit() {
@@ -53,6 +55,7 @@ export class RegFormComponent implements OnInit {
     }
     this.viewState = ViewStates.CardInput;
     this.stateMessage = '';
+    this.sessionState = res;
     this.getStates();
   }
 
