@@ -3,20 +3,25 @@
 
   <form #regForm="ngForm">
     <div class="form-group">
+      <div *ngIf="sessionState" class="row vertical-align">
+          <div class="col-xs-6  ">
+              <input type="text" class="form-control" id="captchaSolution" placeholder="Введите символы указанные на картинке" pattern="^[0-9]+$"
+                [(ngModel)]="sessionState.captchaSolution" name="captchaSolution">
+            </div>
+            <img id=image src="{{clientService.rootUrl}}captcha/{{sessionState.captcha}}.png" alt="Captcha image">
+      </div>
       <label for="card">Номер карты</label>
       <div class="row vertical-align">
-        <div class="col-xs-7  ">
-          <input type="text" class="form-control" id="card" placeholder="Укажите код карты" [attr.readonly]="(viewState === ViewStates.Init || viewState >= ViewStates.CardApproved)? '': null"
+        <div class="col-xs-6  ">
+          <input type="text" class="form-control" id="card" placeholder="Введите код карты" [attr.readonly]="(viewState === ViewStates.Init || viewState >= ViewStates.CardApproved)? '': null"
             pattern="^[0-9]+$" [(ngModel)]="model.card" name="card">
         </div>
-        <div class="col-xs-4  " *ngIf="(viewState == ViewStates.CardInput || viewState == ViewStates.WrongCard)" >
+        <div class="col-xs-3  " *ngIf="(viewState == ViewStates.CardInput || viewState == ViewStates.WrongCard)">
           <button class="btn btn-primary" (click)="validateCard()">Проверить</button>
         </div>
       </div>
-      <div *ngIf="sessionState"><img id=image src="{{clientService.rootUrl}}captcha/{{sessionState.captcha}}.png" alt="Captcha image"></div>
-      <div *ngIf="viewState == ViewStates.CardInput" >{{stateMessage}}</div>
-      <h4 *ngIf="(viewState == ViewStates.WrongCard || viewState > ViewStates.Complite)" 
-        class="alert alert-danger col-xs-7" [innerHTML]="stateMessage">
+      <div *ngIf="viewState == ViewStates.CardInput">{{stateMessage}}</div>
+      <h4 *ngIf="(viewState == ViewStates.WrongCard || viewState > ViewStates.Complite)" class="alert alert-danger col-xs-7" [innerHTML]="stateMessage">
       </h4>
 
     </div>
@@ -64,7 +69,9 @@
       <div class="form-group">
         <label for="phone">Телефон</label>
         <div class="row vertical-align">
-          <div class="col-xs-1 "> <input type="text" class="form-control" [value]="'(+375)'" [attr.readonly]="true" ></div>
+          <div class="col-xs-1 ">
+            <input type="text" class="form-control" [value]="'(+375)'" [attr.readonly]="true">
+          </div>
           <div class="col-xs-1  ">
             <input type="text" class="form-control" id="phone_code" [(ngModel)]="model.phone_code" name="phone_code" placeholder="Код"
               #phone_code="ngModel" required minlength="2" maxlength="2" pattern="^\s*\d{2}\s*$">
