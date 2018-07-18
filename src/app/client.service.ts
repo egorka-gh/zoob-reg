@@ -39,8 +39,8 @@ export class ClientService {
       );
   }
 
-  validateCard(card: string): Observable<ValidateResult> {
-    const res: ValidateResult = new ValidateResult( 0, card, 0, 0, '');
+  validateCard(res: ValidateResult): Observable<ValidateResult> {
+    // const res: ValidateResult = new ValidateResult( 0, card, 0, 0, '');
 
     return this.http.post<ValidateResult>(this.rootUrl + this.validateUrl, res, httpOptions)
       .pipe(

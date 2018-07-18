@@ -31,8 +31,10 @@ export class RegFormComponent implements OnInit {
   ViewStates: typeof ViewStates = ViewStates;
   viewState: ViewStates = ViewStates.Init;
 
-  sessionState: ValidateResult;
+  sessionState = new ValidateResult(0, '', 0);
 
+  captchaUrl = '';
+  captchaMessage = 'Введите символы указанные на изображении';
   stateMessage = '';
 
   model = new Client('', '', '', '', '', '', 0);
@@ -56,7 +58,20 @@ export class RegFormComponent implements OnInit {
     this.viewState = ViewStates.CardInput;
     this.stateMessage = '';
     this.sessionState = res;
+    this.setCaptchaUrl();
     this.getStates();
+  }
+
+  setCaptchaUrl( reload: boolean = false ) {
+    if (this.isBlank(this.sessionState.captcha)) {
+      this.captchaUrl = '';
+      return;
+    }
+    let url = this.clientService.rootUrl + 'captcha/' + this.sessionState.captcha + '.png';
+    if (reload) {
+      url = url + '?reload=' + (new Date()).getTime();
+    }
+    this.captchaUrl = url;
   }
 
   getStates() {
@@ -76,12 +91,21 @@ export class RegFormComponent implements OnInit {
   }
 
   validateCard() {
-      if (this.isBlank(this.model.card)) { return; }
-      this.clientService.validateCard(this.model.card)
+      if (this.isBlank(this.model.card) && this.isBlank(this.sessionState.captchaSolution)) { return; }
+      this.sessionState.card = this.model.card;
+      this.clientService.validateCard(this.sessionState)
       .subscribe(r => this.onValidateCard(r) );
   }
   onValidateCard(res: ValidateResult) {
+    this.sessionState = res;
+    // validate  capthca
+    if (res.err === -5) {
+      this.captchaMessage = 'Указаны не верные символы';
+      return;
+    }
+    // validate card
     if (res.err === 0) {
+      this.stateMessage = '';
         this.viewState = ViewStates.CardApproved;
     } else {
       this.stateMessage = this.statesMap.get(res.err).web_comment;
