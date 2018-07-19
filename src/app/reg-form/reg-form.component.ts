@@ -1,19 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 
-import {Client} from '../client';
-import {ClientState} from '../client.state';
-import {ClientService} from '../client.service';
+import { Client } from '../client';
+import { ClientState } from '../client.state';
+import { ClientService } from '../client.service';
 import { ValidateResult } from '../validate.result';
-
-enum ViewStates {
-  Init = 0,
-  CardInput = 1,
-  WrongCard = 2,
-  CardApproved = 3,
-  Complite = 4,
-  CardError = 5,
-  ServiseError = 6
-}
 
 @Component({
   selector: 'app-reg-form',
@@ -28,9 +18,6 @@ export class RegFormComponent implements OnInit {
   // statesMap: { [id: number]: ClientState; } = {};
   statesMap = new Map<number, ClientState>();
 
-  ViewStates: typeof ViewStates = ViewStates;
-  viewState: ViewStates = ViewStates.Init;
-
   sessionState = new ValidateResult(0, '', 0);
 
   captchaUrl = '';
@@ -43,26 +30,23 @@ export class RegFormComponent implements OnInit {
 
 
   ngOnInit() {
-    this.viewState = ViewStates.Init;
     this.clientService.ping()
-      .subscribe(val => this.onPing(val) );
+      .subscribe(val => this.onPing(val));
   }
 
   onPing(res: ValidateResult) {
     if (res.err === -1) {
       // ping fault
-      this.viewState = ViewStates.ServiseError;
       this.stateMessage = res.message;
       return;
     }
-    this.viewState = ViewStates.CardInput;
     this.stateMessage = '';
     this.sessionState = res;
     this.setCaptchaUrl();
     this.getStates();
   }
 
-  setCaptchaUrl( reload: boolean = false ) {
+  setCaptchaUrl(reload: boolean = false) {
     if (this.isBlank(this.sessionState.captcha)) {
       this.captchaUrl = '';
       return;
@@ -76,7 +60,7 @@ export class RegFormComponent implements OnInit {
 
   getStates() {
     this.clientService.getStates()
-      .subscribe(states => this.setStates(states) );
+      .subscribe(states => this.setStates(states));
   }
 
   setStates(val: ClientState[]) {
@@ -91,42 +75,40 @@ export class RegFormComponent implements OnInit {
   }
 
   validateCard() {
-      if (this.isBlank(this.model.card) && this.isBlank(this.sessionState.captchaSolution)) { return; }
-      this.sessionState.card = this.model.card;
-      this.clientService.validateCard(this.sessionState)
-      .subscribe(r => this.onValidateCard(r) );
+    if (this.isBlank(this.sessionState.captchaSolution)) { return; }
+    this.sessionState.card = this.model.card;
+    this.clientService.validateCard(this.sessionState)
+      .subscribe(r => this.onValidateCard(r));
   }
   onValidateCard(res: ValidateResult) {
     this.sessionState = res;
-    // validate  capthca
-    if (res.err === -5) {
-      this.captchaMessage = 'Указаны не верные символы';
-      return;
-    }
-    // validate card
-    if (res.err === 0) {
-      this.stateMessage = '';
-        this.viewState = ViewStates.CardApproved;
-    } else {
-      this.stateMessage = this.statesMap.get(res.err).web_comment;
-      if (res.err === -1) {
-          // fatal service error
-          this.viewState = ViewStates.ServiseError;
-        } else if ( res.err === -10 ) {
-          this.viewState = ViewStates.WrongCard;
-        } else {
-          this.viewState = ViewStates.CardError;
-          this.stateMessage = this.statesMap.get(res.state).web_comment;
-      }
-  }
-  }
 
+    switch (res.err) {
+      case 0: {
+        this.stateMessage = '';
+        break;
+      }
+      case -5: {
+        this.captchaMessage = 'Указаны не верные символы';
+        break;
+      }
+      case -1:
+      case -10: {
+        this.stateMessage = this.statesMap.get(res.err).web_comment;
+        break;
+      }
+      default: {
+        this.stateMessage = this.statesMap.get(res.state).web_comment;
+        break;
+      }
+    }
+  }
 
 
   isBlank(str: string): boolean {
     if (str == null) { return true; }
-    return str.replace(/\s/g, '').length === 0 ;
-}
+    return str.replace(/\s/g, '').length === 0;
+  }
 
   // TODO: Remove this when we're done
   get diagnostic() { return JSON.stringify(this.model); }
