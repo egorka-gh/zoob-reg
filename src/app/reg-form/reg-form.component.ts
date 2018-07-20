@@ -93,6 +93,7 @@ export class RegFormComponent implements OnInit {
         break;
       }
       case -1:
+      case -12:
       case -10: {
         this.stateMessage = this.statesMap.get(res.err).web_comment;
         break;
@@ -104,6 +105,18 @@ export class RegFormComponent implements OnInit {
     }
   }
 
+  registerCard() {
+    // if (this.isBlank(this.sessionState.captchaSolution)) { return; }
+    this.clientService.registerCard(this.sessionState, this.model)
+      .subscribe(r => this.onRegisterCard(r));
+  }
+  onRegisterCard(res: ValidateResult) {
+    this.sessionState = res;
+    if (res.err === 0 ) {
+      // complited
+      this.stateMessage = 'Спасибо за регистрацию. ' +  this.statesMap.get(res.state).web_comment;
+    }
+  }
 
   isBlank(str: string): boolean {
     if (str == null) { return true; }
@@ -112,4 +125,5 @@ export class RegFormComponent implements OnInit {
 
   // TODO: Remove this when we're done
   get diagnostic() { return JSON.stringify(this.model); }
+  get sess() { return JSON.stringify(this.sessionState); }
 }

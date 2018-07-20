@@ -24,6 +24,7 @@ export class ClientService {
   private statesUrl = 'states/';  // URL to web api
   private pingUrl = 'ping/';
   private validateUrl = 'validate/';
+  private registerUrl = 'register/';
 
   ping(): Observable<ValidateResult> {
     return this.http.get<ValidateResult>(this.rootUrl + this.pingUrl)
@@ -48,6 +49,12 @@ export class ClientService {
       );
   }
 
+  registerCard(res: ValidateResult, cli: Client): Observable<ValidateResult> {
+    return this.http.post<ValidateResult>(this.rootUrl + this.registerUrl, {Client: cli, Result: res}, httpOptions)
+      .pipe(
+        catchError(this.handleError('registerCard', new ValidateResult(0, '', -1, -1, 'Сервис не доступен')))
+      );
+  }
 
   /**
    * Handle Http operation that failed.
