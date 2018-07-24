@@ -23,8 +23,9 @@ export class RegFormComponent implements OnInit {
   captchaUrl = '';
   captchaMessage = 'Введите символы указанные на изображении';
   stateMessage = '';
+  isBusy = true;
 
-  model = new Client('', '', '', '', '', '', 0);
+  model = new Client('', '', '', '', '', '', 0, '', '', '', true);
 
   constructor(public clientService: ClientService) { }
 
@@ -37,9 +38,11 @@ export class RegFormComponent implements OnInit {
   onPing(res: ValidateResult) {
     if (res.err === -1) {
       // ping fault
+      this.sessionState.err = res.err;
       this.stateMessage = res.message;
       return;
     }
+    this.isBusy = false;
     this.stateMessage = '';
     this.sessionState = res;
     this.setCaptchaUrl();
@@ -76,11 +79,13 @@ export class RegFormComponent implements OnInit {
 
   validateCard() {
     if (this.isBlank(this.sessionState.captchaSolution)) { return; }
+    this.isBusy = true;
     this.sessionState.card = this.model.card;
     this.clientService.validateCard(this.sessionState)
       .subscribe(r => this.onValidateCard(r));
   }
   onValidateCard(res: ValidateResult) {
+    this.isBusy = false;
     this.sessionState = res;
 
     switch (res.err) {
@@ -107,10 +112,12 @@ export class RegFormComponent implements OnInit {
 
   registerCard() {
     // if (this.isBlank(this.sessionState.captchaSolution)) { return; }
+    this.isBusy = true;
     this.clientService.registerCard(this.sessionState, this.model)
       .subscribe(r => this.onRegisterCard(r));
   }
   onRegisterCard(res: ValidateResult) {
+    this.isBusy = false;
     this.sessionState = res;
     if (res.err === 0 ) {
       // complited
@@ -123,7 +130,9 @@ export class RegFormComponent implements OnInit {
     return str.replace(/\s/g, '').length === 0;
   }
 
+  /*
   // TODO: Remove this when we're done
   get diagnostic() { return JSON.stringify(this.model); }
   get sess() { return JSON.stringify(this.sessionState); }
+  */
 }
