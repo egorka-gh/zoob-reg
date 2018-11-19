@@ -21,6 +21,7 @@ export class ClientService {
   ) { }
 
   public rootUrl = 'http://localhost:8088/';
+  // public rootUrl = 'http://37.17.55.236:8088/';
   private statesUrl = 'states/';  // URL to web api
   private pingUrl = 'ping/';
   private validateUrl = 'validate/';
